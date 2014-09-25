@@ -21,11 +21,11 @@ module Workxp
     attr_accessor :sub_domain
     
     # @param [Hash] opts the options to create WorkXP Client.
+    # @option opts [String] :app_key <required>
+    # @option opts [String] :app_secret <required>
     # @option opts [String] :token oauth2 access token. <required>
     # @option opts [String] :refresh_token <optional>
     # @option opts [DateTime] :expires_at <optional>
-    # @option opts [String] :app_key <required>
-    # @option opts [String] :app_secret <required>
     # @option opts [String] :workxp_site <optional>
     # @option opts [String] :sub_domain <optional>
     def initialize(opts={})
@@ -39,7 +39,11 @@ module Workxp
 
     # OAuth2::Client instance with WorkxP OAuth
     def oauth_client
-      @oauth_client ||= OAuth2::Client.new(@app_key, @app_secret, site: @workxp_site)
+      @oauth_client ||= OAuth2::Client.new @app_key, @app_secret, site: @workxp_site do |stack|
+                          stack.request :multipart
+                          stack.request :url_encoded
+                          stack.adapter :net_http
+                        end
     end
     
     def valid_token
@@ -48,7 +52,6 @@ module Workxp
       end
       self.access_token
     end
-    
     
     # @param [Hash] opts the request parameters
     # @option opts [String] :group_id Filter by group_id
@@ -59,16 +62,50 @@ module Workxp
     def user(id)
       valid_token.get("/api/users/#{id}.json", headers: domain_hash).parsed
     end
+    
+    def accounts
+      valid_token.get("/api/accounts.json", )
+    end
+    
+    def activities(opts={})
+      valid_token.get('/api/activities.json', params: opts, headers: domain_hash).parsed
+    end
+    
+    def search_activities(opts={})
+      valid_token.get('/api/activities/search.json', params: opts, headers: domain_hash).parsed
+    end
+    
+    def activity(id)
+      valid_token.get("/api/activities/#{id}.json", headers: domain_hash).parsed
+    end
+    
+    # @param [String] file_path 'path/avatar.png' 
+    # @param [String] file_type 'image/png'
+    # @return [Hash] {"token"=>"1578a2cd0682359935ae03826fb892701f7c5120"}
+    def create_attachment(file_path, file_type)
+      payload = {file: Faraday::UploadIO.new(file_path, file_type)}
+      valid_token.post("/api/attachments.json", body: payload, headers: {:'Sub-Domain' => sub_domain}).parsed
+    end
+
+    def tags
+      valid_token.get('/api/tags.json', headers: domain_hash).parsed
+    end
 
     def groups
       valid_token.get('/api/groups.json', headers: domain_hash).parsed
     end
+    
+    def deletions(opts={})
+      valid_token.get('/api/deletions.json', params: opts, headers: domain_hash).parsed
+    end
 
+
+    restful_api "account"
     restful_api "contact"
     restful_api "task"
     restful_api "note"
     restful_api "deal"
-    restful_api "case"
+    restful_api "kase"
     restful_api "category"
     
     def task_categories
