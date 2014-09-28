@@ -28,10 +28,12 @@ module Workxp
     # @option opts [DateTime] :expires_at <optional>
     # @option opts [String] :workxp_site <optional>
     # @option opts [String] :sub_domain <optional>
+    # @option opts [String] :user_agent <optional> App name of client
     def initialize(opts={})
       @app_key = opts.delete :app_key
       @app_secret = opts.delete :app_secret
       @workxp_site = opts.delete(:workxp_site) || WORKXP_SITE
+      @user_agent = opts.delete(:user_agent)
       self.sub_domain = opts.delete :sub_domain
       
       self.access_token = OAuth2::AccessToken.new(self.oauth_client, opts[:token], opts)
@@ -115,7 +117,7 @@ module Workxp
     private
     def domain_hash
       raise(ArgumentError, "WorkXP Subdomain required.") if sub_domain.nil?
-      {:'Sub-Domain' => sub_domain, :'Content-Type' => 'application/json'}
+      {:'Sub-Domain' => sub_domain, :'Content-Type' => 'application/json', :'User-Agent' => (@user_agent || 'WorkXP Client')}
     end
 
   end
