@@ -27,7 +27,8 @@ client = Workxp::Client.new token: 'oauth2 token',
                        expires_at: 1.month.from_now, 
                        sub_domain: 'your subdomain',
                           app_key: 'app key', 
-                       app_secret: 'app secret'
+                       app_secret: 'app secret',
+                       user_agent: 'WorkXP iOS客户端'
                             
 ```
 
