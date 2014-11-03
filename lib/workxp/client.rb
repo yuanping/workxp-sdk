@@ -5,7 +5,7 @@ module Workxp
   
     delegate :delete, :get, :post, :put, :request, to: :valid_token
     
-    WORKXP_SITE = "https://workxp.info"
+    WORKXP_SITE = "http://litcrm.com"
     
     include Workxp::Restfulable
     
@@ -53,6 +53,12 @@ module Workxp
         self.access_token = access_token.refresh!
       end
       self.access_token
+    end
+    
+    # Refresh token by refresh token
+    # @return [OAuth::AccessToken]
+    def token_refresh!
+      self.access_token = access_token.refresh!
     end
     
     # @param [Hash] opts the request parameters
