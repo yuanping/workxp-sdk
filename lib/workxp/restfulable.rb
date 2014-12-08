@@ -14,7 +14,7 @@ module Workxp::Restfulable
       end
   
       define_method name do |id|
-        valid_token.get("/api/tasks/#{id}.json", headers: domain_hash).parsed
+        valid_token.get("/api/#{names}/#{id}.json", headers: domain_hash).parsed
       end
   
       define_method "create_#{name}" do |json|
